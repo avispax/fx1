@@ -1,25 +1,31 @@
 # coding: utf-8
 import numpy as np
 import pandas as pd
+import indicators as ind
+import backtest as bt
 
-#移動平均線(Close) : 5
-n = 5
-#for i in range(n, df.shape[0]):    #本番用
-for i in range(n, 20):
-    print(i, "-------------------")
-    #sma
-    sma = df['Close'][i-n:i].mean()
-    
-    #wma
-    m = 0
-    tempsum = 0
-    for j in range(0, n) :
-        m += j+1
-        tempsum += df['Close'][i-n+j] * (j+1)
-    wma = tempsum/m
+def revTry(df):
+    rsi10 = ind.iRSI(df,10,'Close')
+    ema20 = ind.iMA(df, 20, ma_method='EMA')
+    enve = ind.iEnvelopes(df, 10, 0.06)
+    #ccc = pd.DataFrame({'Close' : df['Close'], 'EMA20': ema20, 'RSI' : rsi10, 'Upper' : enve['Upper'], 'Low' : enve['Lower']})
+    #print(ccc)
 
-    #ema
-    alpha = 2 / (n + 1)
-    ema = sma if n == i else ema + (alpha * (df['Close'][i-1] - ema))
+    # Buy : エンベロープの下に突き抜ける + RSIが30以下で買い。
+    be = ((df.Close < enve['Lower']) & rsi10 < 30)
+    bExt = ema20 < df.Close
 
-    #print('sma:', sma, ' wma:', wma, ' ema:', ema)
+    se = ((enve['Upper'] < df.Close) & 70 < rsi10)
+    sExt = df.Close < ema20
+
+    t, pl = bt.Backtest(df, be, se, bExt, sExt, TP=100, SL=50, Limit=20)
+
+    eq = bt.BacktestReport(t, pl)
+
+    # グラフで推移を見る時
+    m = 100000
+    #df2 = pd.DataFrame({'Equity':eq+m})
+    #df2 = pd.DataFrame({'Trade':t})
+    #df2 = pd.DataFrame({'Open': df['Open'],'Long': bt.PositionLine(t['Long'].values),'Short': bt.PositionLine(t['Short'].values)})
+    #df2.plot(figsize=(15,10))
+    #plt.show()
