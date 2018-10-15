@@ -162,6 +162,25 @@ def BacktestReport(Trade, PL):
     print('リカバリーファクター =', round(Profit/MDD, 2))
     return Equity
 
+def PositionLine(trade):
+    PosPeriod = 0 #ポジションの期間
+    Position = False #ポジションの有無
+    Line = trade.copy()
+    for i in range(len(Line)):
+        if trade[i] > 0: Position = True 
+        elif Position: PosPeriod += 1 # ポジションの期間をカウント
+        if trade[i] < 0:
+            if PosPeriod > 0:
+                Line[i] = -trade[i]
+                diff = (Line[i]-Line[i-PosPeriod])/PosPeriod
+                for j in range(i-1, i-PosPeriod, -1):
+                    Line[j] = Line[j+1]-diff # ポジションの期間を補間
+                PosPeriod = 0
+                Position = False
+        if trade[i] == 0 and not Position: Line[i] = 'NaN'
+    return Line
+
+
 # 各関数のテスト
 if __name__ == '__main__':
 	pass

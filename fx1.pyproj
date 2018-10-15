@@ -22,7 +22,10 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="source\backtest.py" />
+    <Compile Include="source\indicators.py" />
     <Compile Include="source\main.py" />
+    <Compile Include="source\myInd.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="data\" />
