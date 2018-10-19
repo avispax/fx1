@@ -15,4 +15,6 @@ df.index += pd.offsets.Hour(7) #7時間のオフセット
 
 #df = ind.TF_ohlc(df, 'H') #1時間足データの作成
 
-mi.revTry(df)
+#mi.revTry(df)
+
+mi.test2(df)
